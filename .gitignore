@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+
+# Data (do not push full dataset to GitHub)
+data/*
+!data/README.md
+!data/.gitkeep
+
+# Do not push trained checkpoints
+checkpoints/*.pt
+
+# Reference images are tracked; ignore other files in examples/
+examples/*
+!examples/**/
+!examples/**/*.png
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
