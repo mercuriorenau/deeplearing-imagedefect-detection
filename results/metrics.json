@@ -1,0 +1,186 @@
+{
+  "split": "validation (random 80/20 from MVTec train+test pool)",
+  "model": "resnet18",
+  "categories": [
+    {
+      "category": "bottle",
+      "val_accuracy": 0.9831,
+      "majority_baseline": 0.8305,
+      "improvement_vs_baseline": 0.1525,
+      "n_val_samples": 59,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_bottle.pt"
+    },
+    {
+      "category": "cable",
+      "val_accuracy": 0.92,
+      "majority_baseline": 0.7333,
+      "improvement_vs_baseline": 0.1867,
+      "n_val_samples": 75,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_cable.pt"
+    },
+    {
+      "category": "capsule",
+      "val_accuracy": 0.7465,
+      "majority_baseline": 0.7324,
+      "improvement_vs_baseline": 0.0141,
+      "n_val_samples": 71,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_capsule.pt"
+    },
+    {
+      "category": "carpet",
+      "val_accuracy": 0.9875,
+      "majority_baseline": 0.725,
+      "improvement_vs_baseline": 0.2625,
+      "n_val_samples": 80,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_carpet.pt"
+    },
+    {
+      "category": "grid",
+      "val_accuracy": 0.7971,
+      "majority_baseline": 0.7971,
+      "improvement_vs_baseline": 0.0,
+      "n_val_samples": 69,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_grid.pt"
+    },
+    {
+      "category": "hazelnut",
+      "val_accuracy": 1.0,
+      "majority_baseline": 0.8614,
+      "improvement_vs_baseline": 0.1386,
+      "n_val_samples": 101,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_hazelnut.pt"
+    },
+    {
+      "category": "leather",
+      "val_accuracy": 1.0,
+      "majority_baseline": 0.7297,
+      "improvement_vs_baseline": 0.2703,
+      "n_val_samples": 74,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_leather.pt"
+    },
+    {
+      "category": "metal_nut",
+      "val_accuracy": 1.0,
+      "majority_baseline": 0.7313,
+      "improvement_vs_baseline": 0.2687,
+      "n_val_samples": 67,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_metal_nut.pt"
+    },
+    {
+      "category": "pill",
+      "val_accuracy": 0.7356,
+      "majority_baseline": 0.6437,
+      "improvement_vs_baseline": 0.092,
+      "n_val_samples": 87,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_pill.pt"
+    },
+    {
+      "category": "screw",
+      "val_accuracy": 0.7708,
+      "majority_baseline": 0.7708,
+      "improvement_vs_baseline": 0.0,
+      "n_val_samples": 96,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_screw.pt"
+    },
+    {
+      "category": "tile",
+      "val_accuracy": 1.0,
+      "majority_baseline": 0.7571,
+      "improvement_vs_baseline": 0.2429,
+      "n_val_samples": 70,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_tile.pt"
+    },
+    {
+      "category": "toothbrush",
+      "val_accuracy": 0.7619,
+      "majority_baseline": 0.6667,
+      "improvement_vs_baseline": 0.0952,
+      "n_val_samples": 21,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_toothbrush.pt"
+    },
+    {
+      "category": "transistor",
+      "val_accuracy": 0.9048,
+      "majority_baseline": 0.8254,
+      "improvement_vs_baseline": 0.0794,
+      "n_val_samples": 63,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_transistor.pt"
+    },
+    {
+      "category": "wood",
+      "val_accuracy": 0.9848,
+      "majority_baseline": 0.7879,
+      "improvement_vs_baseline": 0.197,
+      "n_val_samples": 66,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_wood.pt"
+    },
+    {
+      "category": "zipper",
+      "val_accuracy": 1.0,
+      "majority_baseline": 0.6582,
+      "improvement_vs_baseline": 0.3418,
+      "n_val_samples": 79,
+      "class_to_idx": {
+        "no_defect": 0,
+        "defect": 1
+      },
+      "checkpoint": "checkpoints/best_model_zipper.pt"
+    }
+  ]
+}
