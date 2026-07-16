@@ -1,6 +1,6 @@
 """
-Evaluate saved checkpoints on the validation split.
-Reports validation accuracy and majority-class baseline per category.
+Evaluate saved checkpoints on the validation / test split.
+Reports accuracy, precision, recall, F1, confusion matrix, and majority baseline.
 """
 
 import argparse
@@ -10,15 +10,14 @@ from collections import Counter
 from pathlib import Path
 
 import torch
-import torch.nn as nn
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from src.dataset import get_mvtec_categories, get_mvtec_dataloaders
+from src.metrics_utils import binary_classification_metrics
 from src.model import DefectClassifier
-from src.train import evaluate
 
 
 def load_config(config_path="config.yaml"):
@@ -35,6 +34,21 @@ def majority_baseline(val_dataset):
     return max(counts.values()) / len(labels), len(labels)
 
 
+@torch.no_grad()
+def collect_predictions(model, loader, device):
+    """Return lists of true labels and predicted labels."""
+    model.eval()
+    y_true = []
+    y_pred = []
+    for images, labels in loader:
+        images = images.to(device)
+        logits = model(images)
+        preds = logits.argmax(dim=1).cpu().tolist()
+        y_true.extend(labels.tolist())
+        y_pred.extend(preds)
+    return y_true, y_pred
+
+
 def evaluate_category(cfg, category, mvtec_root, device):
     category_dir = mvtec_root / category
     checkpoint_path = Path(ROOT) / cfg["output"]["checkpoint_dir"] / f"best_model_{category}.pt"
@@ -45,6 +59,7 @@ def evaluate_category(cfg, category, mvtec_root, device):
     image_size = cfg["image"]["size"]
     num_workers = cfg["training"]["num_workers"]
     train_ratio = cfg["data"].get("train_ratio", 0.8)
+    split_mode = cfg["data"].get("split_mode", "pooled_random")
 
     _, val_loader, class_to_idx = get_mvtec_dataloaders(
         str(category_dir),
@@ -52,6 +67,7 @@ def evaluate_category(cfg, category, mvtec_root, device):
         image_size=image_size,
         num_workers=num_workers,
         train_ratio=train_ratio,
+        split_mode=split_mode,
     )
 
     model = DefectClassifier(
@@ -62,21 +78,31 @@ def evaluate_category(cfg, category, mvtec_root, device):
 
     ckpt = torch.load(checkpoint_path, map_location=device)
     model.load_state_dict(ckpt["model_state_dict"])
-    model.eval()
 
-    criterion = nn.CrossEntropyLoss()
-    _, val_acc = evaluate(model, val_loader, criterion, device)
+    y_true, y_pred = collect_predictions(model, val_loader, device)
+    metrics = binary_classification_metrics(y_true, y_pred, positive_label=1)
     baseline, n_val = majority_baseline(val_loader.dataset)
 
     return {
         "category": category,
-        "val_accuracy": round(val_acc, 4),
+        "val_accuracy": round(metrics["accuracy"], 4),
+        "precision": round(metrics["precision"], 4),
+        "recall": round(metrics["recall"], 4),
+        "f1": round(metrics["f1"], 4),
+        "confusion_matrix": metrics["confusion_matrix"],
         "majority_baseline": round(baseline, 4),
-        "improvement_vs_baseline": round(val_acc - baseline, 4),
+        "improvement_vs_baseline": round(metrics["accuracy"] - baseline, 4),
         "n_val_samples": n_val,
         "class_to_idx": ckpt.get("class_to_idx", class_to_idx),
         "checkpoint": str(checkpoint_path.relative_to(ROOT)).replace("\\", "/"),
     }
+
+
+def _split_description(cfg):
+    split_mode = cfg["data"].get("split_mode", "pooled_random")
+    if split_mode == "official_holdout":
+        return "official_holdout (train on train/good + train-ratio of test defects; eval on held-out test)"
+    return "validation (random 80/20 from MVTec train+test pool)"
 
 
 def main():
@@ -122,6 +148,7 @@ def main():
             results.append(metrics)
             print(
                 f"Val accuracy: {metrics['val_accuracy']:.2%} | "
+                f"P/R/F1: {metrics['precision']:.2%}/{metrics['recall']:.2%}/{metrics['f1']:.2%} | "
                 f"Baseline: {metrics['majority_baseline']:.2%} | "
                 f"Improvement: {metrics['improvement_vs_baseline']:+.2%} | "
                 f"n={metrics['n_val_samples']}"
@@ -136,7 +163,8 @@ def main():
     output_path = Path(ROOT) / args.output
     output_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        "split": "validation (random 80/20 from MVTec train+test pool)",
+        "split": _split_description(cfg),
+        "split_mode": cfg["data"].get("split_mode", "pooled_random"),
         "model": cfg["model"]["name"],
         "categories": results,
     }
