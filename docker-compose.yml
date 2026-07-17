@@ -1,0 +1,12 @@
+services:
+  defect-ui:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mount trained weights (download from Google Drive; not in the image)
+      - ./checkpoints:/app/checkpoints:ro
+      # Optional: override bundled reference images
+      - ./examples:/app/examples:ro
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
