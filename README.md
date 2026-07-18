@@ -37,16 +37,19 @@ flowchart LR
 
 ## Results
 
+Committed metrics in `results/metrics.json` (ResNet18, pooled random 80/20 split):
+
 | Metric | Value |
 |--------|-------|
-| Categories trained | 15 (MVTec AD) |
-| Best validation accuracy | **98.3%** (bottle) |
-| Improvement vs majority baseline | **+21.5 pts** (76.8% → 98.3%) |
+| Categories evaluated | 15 (MVTec AD) |
+| Validation accuracy range | 74.65% (capsule) – 100% (5 categories) |
+| Bottle | 98.31% val acc vs 83.05% majority baseline (+15.25 pts, n=59) |
+| Categories at 100% val acc | hazelnut, leather, metal_nut, tile, zipper |
 | Backbone | ResNet18 (ImageNet transfer learning) |
 
-**Note:** Metrics use a random 80/20 train/val split inside the training code. This is binary image classification, not the official MVTec AD anomaly-detection benchmark (segmentation / AUROC).
+**Note:** Metrics use a random 80/20 train/val split of the pooled MVTec train+test images. This is binary image classification, not the official MVTec AD anomaly-detection benchmark (segmentation / AUROC). Regenerating metrics (including precision/recall/F1) requires local MVTec data and checkpoints.
 
-Reproduce metrics locally (requires MVTec data + checkpoints):
+Reproduce metrics locally:
 
 ```bash
 python -m src.evaluate --all-categories
@@ -67,6 +70,16 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
+
+Or with Docker (checkpoints mounted from the host; not a public demo):
+
+```bash
+mkdir -p checkpoints
+# place best_model_*.pt files in checkpoints/
+docker compose up --build
+```
+
+Then open http://localhost:8501.
 
 Select a product category, upload an image, and view the prediction. Reference examples ship in `examples/` so the UI works without the full dataset.
 
@@ -143,6 +156,17 @@ Edit `config.yaml` to change:
 - **model.name**: `resnet18`, `resnet34`, or `resnet50`
 - **training**: `batch_size`, `epochs`, `learning_rate`
 - **model.freeze_backbone_epochs**: epochs with frozen backbone before fine-tuning
+- **data.split_mode**: `pooled_random` (default; matches committed `results/metrics.json`) or `official_holdout` (train on `train/good` + a portion of test defects; evaluate on held-out `test/`). Switching to `official_holdout` requires a full retrain before metrics are comparable.
+
+## Latency benchmark
+
+Download at least one checkpoint, then:
+
+```bash
+python scripts/benchmark_latency.py
+```
+
+Writes mean / p50 / p95 latency (ms) and peak RSS to `results/latency.json`. Uses a synthetic 224×224 tensor (no dataset required).
 
 ## Project structure
 
@@ -151,20 +175,26 @@ Image Defect Detection/
   app.py                  # Streamlit operator dashboard
   config.yaml             # Paths and hyperparameters
   requirements.txt
+  Dockerfile              # Local Streamlit container
+  docker-compose.yml      # Mounts checkpoints/ and examples/
+  .github/workflows/ci.yml
   checkpoints/            # Saved models (download separately)
   examples/               # One good + defect image per category (for UI)
   results/                # Evaluation metrics JSON
   scripts/
     copy_example_images.py
+    benchmark_latency.py
   data/                   # MVTec AD or custom dataset (not in repo)
   src/
     dataset.py            # DataLoaders and transforms
     model.py              # ResNet transfer learning
     train.py              # Training
     predict.py            # Inference
-    evaluate.py           # Validation metrics and baselines
+    evaluate.py           # Validation metrics (accuracy, P/R/F1, confusion matrix)
+    metrics_utils.py      # Pure-Python metric helpers
   tests/
     test_smoke.py
+    test_metrics_utils.py
   docs/
     RECOMMENDED_DATASETS.md
 ```
