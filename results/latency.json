@@ -1,0 +1,17 @@
+{
+  "checkpoint": "checkpoints/best_model_bottle.pt",
+  "model": "resnet18",
+  "image_size": 224,
+  "device": "cpu",
+  "batch_size": 1,
+  "latency": {
+    "mean_ms": 26.308,
+    "p50_ms": 22.633,
+    "p95_ms": 41.227,
+    "min_ms": 19.186,
+    "max_ms": 72.112,
+    "n_runs": 50,
+    "n_warmup": 10
+  },
+  "peak_rss_mb": 490.89
+}

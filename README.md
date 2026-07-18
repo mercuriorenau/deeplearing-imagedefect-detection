@@ -42,18 +42,30 @@ Committed metrics in `results/metrics.json` (ResNet18, pooled random 80/20 split
 | Metric | Value |
 |--------|-------|
 | Categories evaluated | 15 (MVTec AD) |
-| Validation accuracy range | 74.65% (capsule) – 100% (5 categories) |
-| Bottle | 98.31% val acc vs 83.05% majority baseline (+15.25 pts, n=59) |
-| Categories at 100% val acc | hazelnut, leather, metal_nut, tile, zipper |
+| Validation accuracy range | 73.24% (capsule) – 100% (4 categories) |
+| Bottle | 98.31% val acc, F1 94.74% (P 100% / R 90%) vs 83.05% majority baseline (+15.25 pts, n=59) |
+| Categories at 100% val acc / F1 | hazelnut, leather, metal_nut, zipper |
 | Backbone | ResNet18 (ImageNet transfer learning) |
 
-**Note:** Metrics use a random 80/20 train/val split of the pooled MVTec train+test images. This is binary image classification, not the official MVTec AD anomaly-detection benchmark (segmentation / AUROC). Regenerating metrics (including precision/recall/F1) requires local MVTec data and checkpoints.
+**Note:** Metrics use a random 80/20 train/val split of the pooled MVTec train+test images. This is binary image classification, not the official MVTec AD anomaly-detection benchmark (segmentation / AUROC).
 
-Reproduce metrics locally:
+Reproduce metrics locally (requires MVTec data + checkpoints):
 
 ```bash
 python -m src.evaluate --all-categories
 ```
+
+## Latency (CPU)
+
+Committed in `results/latency.json` (`best_model_bottle.pt`, ResNet18, 224×224, batch 1, 50 timed runs after 10 warmup):
+
+| Metric | Value |
+|--------|-------|
+| p50 latency | 22.633 ms |
+| p95 latency | 41.227 ms |
+| mean latency | 26.308 ms |
+| Peak RSS | 490.89 MB |
+| Device | CPU |
 
 ## Quick start (dashboard)
 
@@ -160,13 +172,12 @@ Edit `config.yaml` to change:
 
 ## Latency benchmark
 
-Download at least one checkpoint, then:
-
 ```bash
 python scripts/benchmark_latency.py
+# or: python scripts/benchmark_latency.py --checkpoint checkpoints/best_model_bottle.pt
 ```
 
-Writes mean / p50 / p95 latency (ms) and peak RSS to `results/latency.json`. Uses a synthetic 224×224 tensor (no dataset required).
+Writes mean / p50 / p95 latency (ms) and peak RSS to `results/latency.json`. Uses a synthetic 224×224 tensor (no dataset required). See committed results above.
 
 ## Project structure
 
